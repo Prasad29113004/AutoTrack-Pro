@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Service Billing | AutoTrack Pro</title><link rel="stylesheet" href="css/style.css"></head>
+<body data-user-page="billing">
+  <nav class="navbar"><div class="container nav-inner">
+    <a class="brand" href="dashboard.html"><span class="brand-mark">A</span>AutoTrack <span>Pro</span></a>
+    <div class="nav-links" data-nav><a href="dashboard.html">Dashboard</a><a href="booking.html">Book Service</a><a href="tracking.html">Track</a><a href="billing.html">Billing</a><a href="pickup.html">Pickup</a><a href="profile.html">Profile</a></div>
+    <div class="nav-actions"><button class="icon-btn" data-theme-toggle>☾</button><button class="icon-btn menu-toggle" data-menu-toggle>☰</button><button class="icon-btn" data-logout>↪</button></div>
+  </div></nav>
+  <header class="page-header"><div class="container page-header-row"><div><span class="eyebrow">Transparent billing</span><h1>Service invoice</h1><p>Review spare parts, labour, taxes, and the final payable amount.</p></div><div class="no-print" style="display:flex;gap:10px;flex-wrap:wrap"><select id="invoiceSelect" style="min-width:260px"><option value="">Choose a service</option></select><button class="btn btn-primary" id="printInvoice">Print / Save PDF</button></div></div></header>
+  <main class="dashboard-main"><div class="container" id="invoiceRoot"><div class="skeleton" style="min-height:300px"></div></div></main>
+  <script src="js/storage.js"></script><script src="js/billing.js"></script><script src="js/dashboard.js"></script>
+</body>
+</html>

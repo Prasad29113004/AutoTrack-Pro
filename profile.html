@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>My Profile | AutoTrack Pro</title><link rel="stylesheet" href="css/style.css"></head>
+<body data-user-page="profile">
+  <nav class="navbar"><div class="container nav-inner">
+    <a class="brand" href="dashboard.html"><span class="brand-mark">A</span>AutoTrack <span>Pro</span></a>
+    <div class="nav-links" data-nav><a href="dashboard.html">Dashboard</a><a href="booking.html">Book Service</a><a href="tracking.html">Track</a><a href="billing.html">Billing</a><a href="pickup.html">Pickup</a><a href="profile.html">Profile</a></div>
+    <div class="nav-actions"><button class="icon-btn" data-theme-toggle>☾</button><button class="icon-btn menu-toggle" data-menu-toggle>☰</button><button class="icon-btn" data-logout>↪</button></div>
+  </div></nav>
+  <header class="page-header"><div class="container page-header-row"><div><span class="eyebrow">Account settings</span><h1>Profile & security</h1><p>Keep your contact and account information up to date.</p></div></div></header>
+  <main class="dashboard-main"><div class="container content-grid">
+    <section>
+      <div class="card"><div class="card-header"><h2>Personal information</h2></div><div class="card-body"><form id="profileForm"><div class="form-grid"><div class="form-group"><label>Full name</label><input class="input" name="name" required></div><div class="form-group"><label>Email address</label><input class="input" name="email" type="email" readonly></div><div class="form-group"><label>Mobile number</label><input class="input" name="phone" required></div><div class="form-group full"><label>Address</label><textarea name="address" placeholder="Your preferred delivery address"></textarea></div></div><button class="btn btn-primary" style="margin-top:22px" type="submit">Save profile changes</button></form></div></div>
+      <div class="card" style="margin-top:22px"><div class="card-header"><h2>Change password</h2></div><div class="card-body"><form id="passwordForm"><div class="form-grid"><div class="form-group"><label>Current password</label><input class="input" type="password" name="currentPassword" required></div><div class="form-group"><label>New password</label><input class="input" type="password" name="newPassword" minlength="6" required></div></div><button class="btn btn-outline" style="margin-top:22px" type="submit">Update password</button></form></div></div>
+    </section>
+    <aside><div class="card"><div class="card-body" style="text-align:center;padding:32px"><div class="avatar" id="profileInitials" style="width:84px;height:84px;margin:0 auto 16px;border-radius:24px;font-size:1.4rem">AS</div><h2 id="profileName" style="margin-bottom:5px">Customer</h2><p class="muted" id="profileSince">Member since</p><button class="btn btn-danger btn-block" data-logout>Log out</button></div></div><div class="info-box" style="margin-top:16px"><strong>Privacy note</strong>This educational project stores account data only in your browser's localStorage.</div></aside>
+  </div></main>
+  <script src="js/storage.js"></script><script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Book Vehicle Service | AutoTrack Pro</title><link rel="stylesheet" href="css/style.css"></head>
+<body data-user-page="booking">
+  <nav class="navbar"><div class="container nav-inner">
+    <a class="brand" href="dashboard.html"><span class="brand-mark">A</span>AutoTrack <span>Pro</span></a>
+    <div class="nav-links" data-nav><a href="dashboard.html">Dashboard</a><a href="booking.html">Book Service</a><a href="tracking.html">Track</a><a href="billing.html">Billing</a><a href="pickup.html">Pickup</a><a href="profile.html">Profile</a></div>
+    <div class="nav-actions"><button class="icon-btn" data-theme-toggle>☾</button><button class="icon-btn menu-toggle" data-menu-toggle>☰</button><button class="icon-btn" data-logout>↪</button></div>
+  </div></nav>
+  <header class="page-header"><div class="container page-header-row"><div><span class="eyebrow">Service request</span><h1>Book your vehicle service</h1><p>Tell us about your vehicle and preferred workshop visit.</p></div></div></header>
+  <main class="dashboard-main"><div class="container content-grid">
+    <section class="card" id="bookingCard">
+      <div class="card-header"><h2>Booking details</h2><span class="badge badge-progress">Takes about 2 minutes</span></div>
+      <div class="card-body">
+        <div class="stepper"><div class="step done"><i>✓</i>Account</div><div class="step active"><i>2</i>Vehicle</div><div class="step"><i>3</i>Confirmation</div></div>
+        <form id="bookingForm">
+          <h3>Customer information</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Full name</label><input class="input" name="customerName" required></div>
+            <div class="form-group"><label>Mobile number</label><input class="input" name="phone" required></div>
+            <div class="form-group full"><label>Email address</label><input class="input" name="email" type="email" readonly></div>
+          </div>
+          <h3 style="margin-top:28px">Vehicle details</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Manufacturer <span class="required">*</span></label><input class="input" name="make" placeholder="e.g. Hyundai" required></div>
+            <div class="form-group"><label>Model <span class="required">*</span></label><input class="input" name="model" placeholder="e.g. Creta" required></div>
+            <div class="form-group"><label>Registration number <span class="required">*</span></label><input class="input" name="vehicleNumber" placeholder="MH 12 AB 1234" required></div>
+            <div class="form-group"><label>Manufacturing year</label><input class="input" name="year" type="number" min="1990" max="2026" value="2023" required></div>
+            <div class="form-group"><label>Fuel type</label><select name="fuel" required><option>Petrol</option><option>Diesel</option><option>CNG</option><option>Electric</option><option>Hybrid</option></select></div>
+            <div class="form-group"><label>Service type <span class="required">*</span></label><select name="serviceType" required><option value="">Choose service</option></select></div>
+            <div class="form-group"><label>Preferred date <span class="required">*</span></label><input class="input" name="preferredDate" type="date" required></div>
+            <div class="form-group full"><label>Issues or special requests</label><textarea name="notes" placeholder="Describe any noise, warning light, concern, or request..."></textarea></div>
+          </div>
+          <div class="info-box" style="margin-top:22px"><strong>Before you confirm</strong>A unique Service ID will be generated automatically. Use it anytime to track live progress.</div>
+          <button class="btn btn-primary btn-block" style="margin-top:22px" type="submit">Review and confirm booking →</button>
+        </form>
+      </div>
+    </section>
+    <aside>
+      <div class="card"><div class="card-header"><h3>Booking estimate</h3></div><div class="card-body"><div style="padding-bottom:15px;border-bottom:1px solid var(--border)"><span class="mini-label">Estimated service cost</span><h2 id="serviceEstimate" style="margin:6px 0 0">Select a service</h2></div><div style="padding-top:15px"><span class="mini-label">Expected turnaround</span><h3 id="completionEstimate" style="margin:6px 0">To be calculated</h3><p class="muted" style="font-size:.8rem;margin:0">Your advisor will confirm the exact date after inspection.</p></div></div></div>
+      <div class="info-box" style="margin-top:16px"><strong>Need help choosing?</strong>Book “Full Vehicle Service” for a complete inspection or note your concern for our advisor.</div>
+    </aside>
+  </div></main>
+  <script src="js/storage.js"></script><script src="js/booking.js"></script><script src="js/dashboard.js"></script>
+</body>
+</html>

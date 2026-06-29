@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | AutoTrack Pro</title><link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="auth-page">
+    <section class="auth-brand">
+      <a class="brand" href="index.html"><span class="brand-mark">A</span>AutoTrack <span>Pro</span></a>
+      <div class="auth-quote"><span class="eyebrow">Service centre console</span><h1>Keep every service bay moving.</h1><p>Manage customer bookings, task progress, work photos, invoices, and handovers from one focused workspace.</p><div class="auth-points"><span>Complete booking management</span><span>Service timeline control</span><span>Billing and delivery scheduling</span></div></div>
+      <small style="color:#64748b">Authorised staff access only</small>
+    </section>
+    <section class="auth-form-wrap">
+      <div class="auth-form">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px"><a class="brand" href="index.html" style="color:var(--text)"><span class="brand-mark">A</span>AutoTrack <span>Pro</span></a><button class="icon-btn" data-theme-toggle style="color:var(--text);border-color:var(--border)">☾</button></div>
+        <h2>Administrator sign in</h2><p>Use your authorised service-centre credentials.</p>
+        <div class="demo-box"><strong>Demo admin:</strong> admin@autotrack.com / Admin@123</div>
+        <form id="adminLoginForm">
+          <div class="form-group"><label for="email">Admin email</label><input class="input" id="email" name="email" type="email" placeholder="admin@autotrack.com" required></div>
+          <div class="form-group"><label for="password">Password</label><input class="input" id="password" name="password" type="password" placeholder="Enter admin password" required></div>
+          <button class="btn btn-primary btn-block" type="submit">Access management console →</button>
+        </form>
+        <p class="auth-switch"><a href="login.html">Return to customer login</a></p>
+      </div>
+    </section>
+  </main>
+  <script src="js/storage.js"></script><script src="js/admin.js"></script>
+</body>
+</html>
