@@ -22,6 +22,27 @@ No customer or vehicle records are preloaded. The private default administrator 
 
 > Because this is a static educational project, client-side credentials and localStorage cannot provide server-grade security. A public production deployment should move authentication and data to a secure backend.
 
+## Live Demo
+
+https://prasad29113004.github.io/AutoTrack-Pro/
+
+## Screenshots
+
+### Home Page
+![Home Page](screenshots/home-page.png)
+
+### Customer Dashboard
+![Customer Dashboard](screenshots/customer-dashboard.png)
+
+### Admin Dashboard
+![Admin Dashboard](screenshots/admin-dashboard.png)
+
+### Tracking Page
+![Tracking Page](screenshots/tracking-page.png)
+
+### Billing Page
+![Billing Page](screenshots/billing-page.png)
+
 ## Main features
 
 ### Customer portal
@@ -72,7 +93,7 @@ To reset all local data, open browser Developer Tools → Application/Storage �
 ## Project structure
 
 ```text
-vehicle-service-system/
+AutoTrack-Pro/
 ├── index.html
 ├── login.html
 ├── register.html
@@ -136,3 +157,24 @@ Because all links are relative and there is no server-side code, the project wor
 ---
 
 Built as a beginner-friendly Final Year B.Tech project demonstrating a complete browser-based management workflow.
+
+---
+
+## Author
+
+**Prasad Nimje**
+
+GitHub: https://github.com/Prasad29113004
+
+---
+
+## Copyright
+
+© 2026 Prasad Nimje. All rights reserved.
+
+This project was developed as a final-year academic project.
+
+Unauthorized commercial use, redistribution, or academic submission without permission is prohibited.
+
+This project is intended for educational and portfolio purposes only.
+
