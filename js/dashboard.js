@@ -9,7 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
     element.textContent = user?.name?.split(" ")[0] || "Customer";
   });
 
-  if (document.getElementById("dashboardBookings")) renderDashboard();
+  if (document.getElementById("dashboardBookings")) {
+    renderDashboard();
+    window.addEventListener("storage", renderDashboard);
+    window.addEventListener("vss:datachange", renderDashboard);
+  }
   if (document.getElementById("profileForm")) initProfile(user);
   if (document.getElementById("pickupContent")) renderPickupPage();
 });
@@ -74,6 +78,12 @@ function renderDashboard() {
     hero.innerHTML = emptyState("No active vehicle", "Your latest service summary will appear here.", "booking.html");
   } else {
     const percent = VSS.progress(latest);
+    const proofTask = [...latest.timeline]
+      .reverse()
+      .find((task) => (task.images || []).some((image) => VSS.imageSource(image)));
+    const proofImage = proofTask
+      ? [...proofTask.images].reverse().map(VSS.imageSource).find(Boolean)
+      : "";
     hero.innerHTML = `
       <div class="vehicle-line">
         <div class="vehicle-icon">◆</div>
@@ -88,6 +98,20 @@ function renderDashboard() {
       <div class="info-box" style="margin-top:18px"><strong>Estimated completion</strong>${VSS.niceDate(
         latest.expectedDate
       )}</div>
+      ${
+        proofImage
+          ? `<div class="dashboard-proof">
+              <img src="${proofImage}" alt="${VSS.escapeHTML(
+              proofTask.title
+            )} service progress">
+              <div><span class="mini-label">Latest work photo</span><strong>${VSS.escapeHTML(
+                proofTask.title
+              )}</strong><small>${VSS.escapeHTML(
+                proofTask.mechanic || "Mechanic not recorded"
+              )}</small></div>
+            </div>`
+          : ""
+      }
       <a class="btn btn-primary btn-block" style="margin-top:16px" href="tracking.html?id=${encodeURIComponent(
         latest.serviceId
       )}">View live progress →</a>`;
@@ -111,7 +135,8 @@ function renderDashboard() {
         .join("")
     : '<div class="empty-state" style="padding:25px">No notifications yet.</div>';
 
-  document.getElementById("markRead")?.addEventListener("click", () => {
+  const markReadButton = document.getElementById("markRead");
+  if (markReadButton) markReadButton.onclick = () => {
     const all = VSS.getBookings().map((booking) => {
       if (booking.userId !== VSS.getUser().id) return booking;
       booking.updates = (booking.updates || []).map((update) => ({ ...update, read: true }));
@@ -120,7 +145,7 @@ function renderDashboard() {
     VSS.saveBookings(all);
     VSS.toast("Notifications marked as read.");
     renderDashboard();
-  });
+  };
 }
 
 function initProfile(user) {

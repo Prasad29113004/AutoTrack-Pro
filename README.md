@@ -14,24 +14,13 @@
 
 1. Download or clone this folder.
 2. Open `index.html` in a modern browser.
-3. Use the demo accounts below, or create a new customer account.
+3. Create a customer account, book a service, and use the generated Service ID.
 
 No installation or terminal command is required.
 
-## Demo accounts
+No customer or vehicle records are preloaded. The private default administrator credentials are configured only in `js/admin.js` and are intentionally not shown in the interface or documentation.
 
-### Customer
-
-- Email: `aarav@example.com`
-- Password: `demo123`
-- Demo Service ID: `VSS-DEMO-1001`
-
-### Administrator
-
-- Email: `admin@autotrack.com`
-- Password: `Admin@123`
-
-> This is an educational front-end project. The admin credentials and customer passwords are stored client-side and are not production security. A real deployment would use a backend, password hashing, authentication tokens, and a database.
+> Because this is a static educational project, client-side credentials and localStorage cannot provide server-grade security. A public production deployment should move authentication and data to a secure backend.
 
 ## Main features
 
@@ -57,7 +46,8 @@ No installation or terminal command is required.
 - Search by Service ID, customer name, or vehicle registration
 - Filter Pending, In Progress, and Completed services
 - Complete individual timeline tasks and add notes
-- Upload up to three service images per update
+- Upload up to three compressed service images per update
+- Record the responsible mechanic for each service task
 - Change expected delivery date
 - Create or edit invoices, spare parts, labour, discount, and GST
 - Schedule self-pickup or home delivery
@@ -67,7 +57,7 @@ No installation or terminal command is required.
 
 ## Data storage
 
-The project stores all demo data in the current browser using `localStorage`:
+The project stores application data in the current browser using `localStorage`:
 
 - `vss_users` — customer accounts
 - `vss_bookings` — bookings, timeline, notifications, invoice, images, and pickup
@@ -75,9 +65,9 @@ The project stores all demo data in the current browser using `localStorage`:
 - `vss_admin_session` — administrator session
 - `vss_theme` — light or dark theme preference
 
-Uploaded images are converted to Data URLs and saved inside the booking record. Files are limited to 1 MB each to reduce the chance of exceeding browser storage limits.
+Uploaded images are resized and compressed to JPEG Data URLs, then saved as structured image records inside the selected service task. Source files are limited to 6 MB and a maximum of three images can be added in one update.
 
-To reset the demo, open browser Developer Tools → Application/Storage → Local Storage, clear this site's storage, and reload. The example account and booking will be recreated automatically.
+To reset all local data, open browser Developer Tools → Application/Storage → Local Storage, clear this site's storage, and reload. The application restarts with empty customer and booking lists.
 
 ## Project structure
 
@@ -126,13 +116,13 @@ Because all links are relative and there is no server-side code, the project wor
 
 ## Suggested project demonstration
 
-1. Sign in as the demo customer and show the active service timeline.
-2. Open the admin portal in another tab.
-3. Search for `VSS-DEMO-1001`.
-4. Complete a task, add a note, and optionally upload an image.
-5. Return to the customer tab and refresh to show the new timeline update.
-6. Create an invoice and pickup schedule from the admin action menu.
-7. Show the customer billing page and print preview.
+1. Register a customer and create a vehicle-service booking.
+2. Copy the automatically generated Service ID.
+3. Open the administrator portal in another tab and find the booking.
+4. Complete a task, enter the mechanic name and service note, and upload an image.
+5. Return to the customer tracking page to show the automatic task and photo update.
+6. Create an invoice and pickup schedule from the administrator action menu.
+7. Show the customer billing page and browser print preview.
 
 ## Academic extension ideas
 

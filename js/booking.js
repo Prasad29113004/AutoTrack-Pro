@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         completed: false,
         completedAt: null,
         note: "",
+        mechanic: "",
         images: [],
       })),
       updates: [

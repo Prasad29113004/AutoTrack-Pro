@@ -811,20 +811,6 @@ h4 {
   font-weight: 700;
 }
 
-.demo-box {
-  margin-bottom: 22px;
-  padding: 13px 15px;
-  border: 1px dashed rgba(249, 115, 22, 0.4);
-  border-radius: 11px;
-  background: var(--orange-soft);
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.demo-box strong {
-  color: var(--text);
-}
-
 /* Forms */
 .form-grid {
   display: grid;
@@ -1259,10 +1245,85 @@ textarea:focus {
   font-size: 0.95rem;
 }
 
+.timeline-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.timeline-title-row h4 {
+  margin-bottom: 10px;
+}
+
+.task-detail-grid {
+  display: grid;
+  margin: 4px 0 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.task-detail-grid > div {
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: var(--surface-2);
+}
+
+.task-detail-grid span,
+.task-detail-grid strong {
+  display: block;
+}
+
+.task-detail-grid span {
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.task-detail-grid strong {
+  font-size: 0.78rem;
+}
+
 .timeline-content p {
   margin: 0;
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+.service-note {
+  padding: 9px 11px;
+  border-left: 3px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  background: var(--orange-soft);
+}
+
+.service-note strong {
+  color: var(--text);
+}
+
+.task-photo-grid {
+  display: grid;
+  margin-top: 11px;
+  grid-template-columns: repeat(3, minmax(0, 120px));
+  gap: 8px;
+}
+
+.task-photo {
+  overflow: hidden;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-3);
+}
+
+.task-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .timeline-content time {
@@ -1717,12 +1778,92 @@ textarea:focus {
   font-size: 0.72rem;
 }
 
+.task-fields {
+  display: grid;
+  margin-top: 7px;
+  grid-template-columns: minmax(150px, 0.65fr) minmax(220px, 1.35fr);
+  gap: 8px;
+}
+
+.task-fields .input {
+  min-height: 36px;
+  padding: 7px 9px;
+}
+
 .upload-zone {
   padding: 24px;
   border: 2px dashed var(--border);
   border-radius: 14px;
   background: var(--surface-2);
   text-align: center;
+}
+
+.upload-preview {
+  display: grid;
+  margin-top: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.upload-preview:empty {
+  display: none;
+}
+
+.upload-preview-item {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.upload-preview-item img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.upload-preview-item span {
+  display: block;
+  overflow: hidden;
+  padding: 6px 8px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-proof {
+  display: grid;
+  margin-top: 14px;
+  padding: 9px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  grid-template-columns: 82px 1fr;
+  gap: 11px;
+}
+
+.dashboard-proof img {
+  width: 82px;
+  height: 62px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.dashboard-proof strong,
+.dashboard-proof small {
+  display: block;
+}
+
+.dashboard-proof strong {
+  margin: 1px 0;
+  font-size: 0.8rem;
+}
+
+.dashboard-proof small {
+  color: var(--muted);
+  font-size: 0.7rem;
 }
 
 .upload-zone input {
@@ -2047,11 +2188,13 @@ textarea:focus {
   }
 
   .admin-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .admin-sidebar {
+    min-width: 0;
     padding: 12px 20px;
+    overflow: hidden;
     border-right: 0;
     border-bottom: 1px solid var(--border);
   }
@@ -2062,6 +2205,7 @@ textarea:focus {
 
   .side-nav {
     display: flex;
+    max-width: 100%;
     overflow-x: auto;
   }
 
@@ -2260,6 +2404,25 @@ textarea:focus {
     border: 1px solid var(--border);
     border-radius: 11px;
     grid-template-columns: 1fr 1fr;
+  }
+
+  .task-fields,
+  .task-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task-row {
+    align-items: flex-start;
+    grid-template-columns: auto 1fr;
+  }
+
+  .task-row > .badge {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .upload-preview {
+    grid-template-columns: 1fr;
   }
 
   .part-row input:first-child {

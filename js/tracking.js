@@ -33,7 +33,15 @@ function renderTracking(serviceId) {
   const percent = VSS.progress(booking);
   const nextIndex = booking.timeline.findIndex((task) => !task.completed);
   const images = booking.timeline.flatMap((task) =>
-    (task.images || []).map((src) => ({ src, title: task.title }))
+    (task.images || [])
+      .map((image) => ({
+        src: VSS.imageSource(image),
+        title: task.title,
+        mechanic: task.mechanic || "",
+        note: task.note || "",
+        completedAt: task.completedAt,
+      }))
+      .filter((image) => image.src)
   );
 
   root.innerHTML = `
@@ -63,13 +71,39 @@ function renderTracking(serviceId) {
   } of ${booking.timeline.length} tasks</span></div>
           <div class="timeline-wrap">
             ${booking.timeline
-              .map(
-                (task, index) => `
+              .map((task, index) => {
+                const taskImages = (task.images || [])
+                  .map(VSS.imageSource)
+                  .filter(Boolean);
+                const taskStatus = task.completed
+                  ? "Completed"
+                  : index === nextIndex
+                  ? "In progress"
+                  : "Pending";
+                const taskStatusClass = task.completed
+                  ? "badge-completed"
+                  : index === nextIndex
+                  ? "badge-progress"
+                  : "badge-pending";
+                return `
                 <div class="timeline-item ${task.completed ? "done" : index === nextIndex ? "active" : ""}">
                   <span class="timeline-dot">${task.completed ? "✓" : index + 1}</span>
                   <div class="timeline-content">
-                    <h4>${VSS.escapeHTML(task.title)}</h4>
-                    <p>${VSS.escapeHTML(
+                    <div class="timeline-title-row">
+                      <h4>${VSS.escapeHTML(task.title)}</h4>
+                      <span class="badge ${taskStatusClass}">${taskStatus}</span>
+                    </div>
+                    <div class="task-detail-grid">
+                      <div><span>Mechanic name</span><strong>${VSS.escapeHTML(
+                        task.mechanic || (task.completed ? "Not recorded" : "Not assigned")
+                      )}</strong></div>
+                      <div><span>Completion date & time</span><strong>${
+                        task.completedAt
+                          ? VSS.niceDate(task.completedAt, true)
+                          : "Awaiting completion"
+                      }</strong></div>
+                    </div>
+                    <p class="service-note"><strong>Service note:</strong> ${VSS.escapeHTML(
                       task.note ||
                         (task.completed
                           ? "Task completed successfully."
@@ -77,15 +111,17 @@ function renderTracking(serviceId) {
                           ? "Currently scheduled or in progress."
                           : "Pending previous service tasks.")
                     )}</p>
-                    ${
-                      task.completedAt
-                        ? `<time>Completed ${VSS.niceDate(task.completedAt, true)}</time>`
-                        : ""
-                    }
+                    ${taskImages.length ? `<div class="task-photo-grid">${taskImages
+                      .map(
+                        (src) =>
+                          `<figure class="task-photo"><img src="${src}" alt="${VSS.escapeHTML(
+                            task.title
+                          )} service work"></figure>`
+                      )
+                      .join("")}</div>` : ""}
                   </div>
-                  ${task.completed ? '<span class="badge badge-completed">Completed</span>' : ""}
-                </div>`
-              )
+                </div>`;
+              })
               .join("")}
           </div>
         </div>
@@ -118,7 +154,9 @@ function renderTracking(serviceId) {
                 .map(
                   (image) => `<figure class="gallery-item"><img src="${image.src}" alt="${VSS.escapeHTML(
                     image.title
-                  )}"><span>${VSS.escapeHTML(image.title)}</span></figure>`
+                  )}"><span>${VSS.escapeHTML(image.title)}${
+                    image.mechanic ? ` · ${VSS.escapeHTML(image.mechanic)}` : ""
+                  }</span></figure>`
                 )
                 .join("")}</div>`
             : '<div class="empty-state" style="padding:28px"><div class="empty-icon">▧</div><h3>No service photos yet</h3><p>Photos uploaded by the service center will appear here.</p></div>'

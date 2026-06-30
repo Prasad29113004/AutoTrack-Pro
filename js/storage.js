@@ -10,7 +10,10 @@ const VSS = (() => {
     session: "vss_session",
     adminSession: "vss_admin_session",
     theme: "vss_theme",
+    dataVersion: "vss_data_version",
   };
+
+  const ADMIN_SESSION_VERSION = "2026-1";
 
   const SERVICE_TASKS = [
     "Vehicle Received",
@@ -63,99 +66,26 @@ const VSS = (() => {
     return value.toISOString().slice(0, 10);
   };
 
-  function seed() {
-    if (!localStorage.getItem(KEYS.users)) {
-      write(KEYS.users, [
-        {
-          id: "USR-DEMO",
-          name: "Aarav Sharma",
-          email: "aarav@example.com",
-          phone: "9876543210",
-          password: "demo123",
-          address: "Pune, Maharashtra",
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-    }
+  /* Creates empty storage and removes legacy sample records from older builds. */
+  function initializeStorage() {
+    const users = read(KEYS.users, []).filter(
+      (user) => !String(user.id || "").toUpperCase().includes("-DEMO")
+    );
+    const validUserIds = new Set(users.map((user) => user.id));
+    const bookings = read(KEYS.bookings, []).filter(
+      (booking) =>
+        !String(booking.id || "").toUpperCase().includes("-DEMO") &&
+        !String(booking.serviceId || "").toUpperCase().includes("-DEMO") &&
+        validUserIds.has(booking.userId)
+    );
 
-    if (!localStorage.getItem(KEYS.bookings)) {
-      write(KEYS.bookings, [
-        {
-          id: "BKG-DEMO",
-          serviceId: "VSS-DEMO-1001",
-          userId: "USR-DEMO",
-          customerName: "Aarav Sharma",
-          email: "aarav@example.com",
-          phone: "9876543210",
-          vehicle: {
-            make: "Hyundai",
-            model: "Creta",
-            number: "MH 12 AB 4582",
-            fuel: "Petrol",
-            year: "2023",
-          },
-          serviceType: "Full Vehicle Service",
-          preferredDate: dateOffset(0),
-          notes: "Please check the brake noise and tyre pressure.",
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-          expectedDate: dateOffset(2),
-          status: "In Progress",
-          timeline: SERVICE_TASKS.map((title, index) => ({
-            id: uid("TSK"),
-            title,
-            completed: index < 4,
-            completedAt:
-              index < 4
-                ? new Date(Date.now() - (22 - index * 3) * 3600000).toISOString()
-                : null,
-            note:
-              index === 0
-                ? "Vehicle checked in at Bay 04."
-                : index === 1
-                ? "Inspection report shared with service advisor."
-                : index === 2
-                ? "Premium 5W-30 synthetic oil used."
-                : index === 3
-                ? "OEM oil filter installed."
-                : "",
-            images: [],
-          })),
-          updates: [
-            {
-              id: uid("UPD"),
-              message: "Oil filter replacement completed successfully.",
-              type: "success",
-              createdAt: new Date(Date.now() - 13 * 3600000).toISOString(),
-              read: false,
-            },
-            {
-              id: uid("UPD"),
-              message: "Your vehicle service has started.",
-              type: "info",
-              createdAt: new Date(Date.now() - 22 * 3600000).toISOString(),
-              read: true,
-            },
-          ],
-          invoice: {
-            number: "INV-DEMO-1001",
-            parts: [
-              { name: "Synthetic Engine Oil 5W-30", qty: 4, cost: 850 },
-              { name: "OEM Oil Filter", qty: 1, cost: 620 },
-            ],
-            labour: 1800,
-            discount: 300,
-            taxRate: 18,
-            createdAt: new Date().toISOString(),
-          },
-          pickup: {
-            date: dateOffset(2),
-            time: "16:30",
-            type: "Self Pickup",
-            address: "",
-            note: "Please carry a valid ID.",
-          },
-        },
-      ]);
+    write(KEYS.users, users);
+    write(KEYS.bookings, bookings);
+    localStorage.setItem(KEYS.dataVersion, "2");
+
+    const session = read(KEYS.session, null);
+    if (session && !validUserIds.has(session.userId)) {
+      localStorage.removeItem(KEYS.session);
     }
   }
 
@@ -314,6 +244,52 @@ const VSS = (() => {
     });
   }
 
+  /* Compresses an uploaded photo before localStorage persistence. */
+  async function imageFileToRecord(file) {
+    if (!file?.type?.startsWith("image/")) {
+      throw new Error("Only image files can be uploaded.");
+    }
+    if (file.size > 6 * 1024 * 1024) {
+      throw new Error("Each image must be smaller than 6 MB.");
+    }
+
+    const original = await fileToDataURL(file);
+    const image = await new Promise((resolve, reject) => {
+      const element = new Image();
+      element.onload = () => resolve(element);
+      element.onerror = () => reject(new Error("The selected image could not be read."));
+      element.src = original;
+    });
+
+    const render = (maxDimension, quality) => {
+      const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL("image/jpeg", quality);
+    };
+
+    let dataUrl = render(1280, 0.78);
+    if (dataUrl.length > 750000) dataUrl = render(900, 0.64);
+
+    return {
+      id: uid("IMG"),
+      name: file.name || "service-photo.jpg",
+      dataUrl,
+      uploadedAt: new Date().toISOString(),
+    };
+  }
+
+  /* Supports both new image records and old string records during migration. */
+  function imageSource(image) {
+    const source = typeof image === "string" ? image : image?.dataUrl || image?.src || "";
+    return /^data:image\/(jpeg|jpg|png|webp|gif);base64,/i.test(source) ? source : "";
+  }
+
   function applyTheme() {
     const theme = localStorage.getItem(KEYS.theme) || "light";
     document.documentElement.dataset.theme = theme;
@@ -372,20 +348,27 @@ const VSS = (() => {
   }
 
   function requireAdmin() {
-    if (!read(KEYS.adminSession, null)) {
+    const session = read(KEYS.adminSession, null);
+    if (
+      !session ||
+      session.role !== "administrator" ||
+      session.credentialVersion !== ADMIN_SESSION_VERSION
+    ) {
+      localStorage.removeItem(KEYS.adminSession);
       location.replace("admin-login.html");
       return false;
     }
     return true;
   }
 
-  seed();
+  initializeStorage();
   document.addEventListener("DOMContentLoaded", initShell);
 
   return {
     KEYS,
     SERVICE_TASKS,
     SERVICES,
+    ADMIN_SESSION_VERSION,
     read,
     write,
     uid,
@@ -408,6 +391,8 @@ const VSS = (() => {
     confirmAction,
     escapeHTML,
     fileToDataURL,
+    imageFileToRecord,
+    imageSource,
     requireUser,
     requireAdmin,
   };

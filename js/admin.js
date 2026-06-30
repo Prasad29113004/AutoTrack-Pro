@@ -1,9 +1,12 @@
 /* =========================================================
    Admin login and complete service-centre management console.
-   Static demo credentials: admin@autotrack.com / Admin@123
    ========================================================= */
 
 let adminState = { search: "", filter: "All", selectedId: null };
+const ADMIN_CREDENTIALS = Object.freeze({
+  username: "admin",
+  password: "AutoTrack@2026",
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("adminLoginForm");
@@ -20,10 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
 function handleAdminLogin(event) {
   event.preventDefault();
   const form = event.currentTarget;
-  const email = form.email.value.trim().toLowerCase();
+  const username = form.username.value.trim();
   const password = form.password.value;
 
-  if (email !== "admin@autotrack.com" || password !== "Admin@123") {
+  if (
+    username !== ADMIN_CREDENTIALS.username ||
+    password !== ADMIN_CREDENTIALS.password
+  ) {
     VSS.toast("Invalid administrator credentials.", "error");
     return;
   }
@@ -32,6 +38,7 @@ function handleAdminLogin(event) {
   button.innerHTML = '<span class="loader"></span> Verifying...';
   VSS.write(VSS.KEYS.adminSession, {
     role: "administrator",
+    credentialVersion: VSS.ADMIN_SESSION_VERSION,
     loginAt: new Date().toISOString(),
   });
   setTimeout(() => (location.href = "admin-dashboard.html"), 650);
@@ -180,9 +187,14 @@ function openServiceModal(booking) {
                 task.completed ? "checked" : ""
               }>
                 <div><h4>${VSS.escapeHTML(task.title)}</h4>
-                <input class="input" style="min-height:36px;padding:7px 9px;margin-top:6px" name="note-${index}" value="${VSS.escapeHTML(
-                task.note || ""
-              )}" placeholder="Add task note"></div>
+                <div class="task-fields">
+                  <input class="input" name="mechanic-${index}" value="${VSS.escapeHTML(
+                    task.mechanic || ""
+                  )}" placeholder="Mechanic name">
+                  <input class="input" name="note-${index}" value="${VSS.escapeHTML(
+                    task.note || ""
+                  )}" placeholder="Service note">
+                </div></div>
                 <span class="badge ${
                   task.completed ? "badge-completed" : "badge-pending"
                 }">${task.completed ? "Done" : "Pending"}</span>
@@ -192,7 +204,7 @@ function openServiceModal(booking) {
         </div>
         <div class="upload-zone" style="margin-top:20px">
           <strong>Upload completed-work images</strong>
-          <p class="muted" style="margin:4px 0 12px;font-size:.8rem">Images are saved in this browser. Max 3 files, 1 MB each.</p>
+          <p class="muted" style="margin:4px 0 12px;font-size:.8rem">Choose the matching task. Images are compressed and saved in this browser. Max 3 files, 6 MB each.</p>
           <div class="form-grid">
             <select name="imageTask">${booking.timeline
               .map(
@@ -202,6 +214,7 @@ function openServiceModal(booking) {
               .join("")}</select>
             <input class="input" type="file" name="images" accept="image/*" multiple>
           </div>
+          <div class="upload-preview" id="uploadPreview"></div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px">
           <button type="button" class="btn btn-ghost" data-close-generated>Cancel</button>
@@ -221,12 +234,29 @@ function openServiceModal(booking) {
     });
   });
 
+  const imageInput = modal.querySelector('input[name="images"]');
+  imageInput.addEventListener("change", () => {
+    const preview = modal.querySelector("#uploadPreview");
+    const files = [...imageInput.files].slice(0, 3);
+    preview.innerHTML = files
+      .map(
+        (file) =>
+          `<div class="upload-preview-item"><img src="${URL.createObjectURL(
+            file
+          )}" alt=""><span>${VSS.escapeHTML(file.name)}</span></div>`
+      )
+      .join("");
+    if (imageInput.files.length > 3) {
+      VSS.toast("Only the first three images will be saved.", "error");
+    }
+  });
+
   modal.querySelector("#serviceUpdateForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
     const current = VSS.getBooking(booking.id);
     const timeline = current.timeline.map((task, index) => {
-      const completed = form[`task-${index}`].checked;
+      const completed = form.elements.namedItem(`task-${index}`).checked;
       const newlyCompleted = completed && !task.completed;
       return {
         ...task,
@@ -236,19 +266,49 @@ function openServiceModal(booking) {
           : completed
           ? task.completedAt || new Date().toISOString()
           : null,
-        note: form[`note-${index}`].value.trim(),
+        mechanic: form.elements.namedItem(`mechanic-${index}`).value.trim(),
+        note: form.elements.namedItem(`note-${index}`).value.trim(),
       };
     });
 
-    const files = [...form.images.files].slice(0, 3);
-    if (files.some((file) => file.size > 1024 * 1024)) {
-      VSS.toast("Each image must be smaller than 1 MB.", "error");
+    const missingMechanic = timeline.find(
+      (task, index) =>
+        task.completed &&
+        !task.mechanic &&
+        (!current.timeline[index].completed || !current.timeline[index].mechanic)
+    );
+    if (missingMechanic) {
+      VSS.toast(`Enter the mechanic name for "${missingMechanic.title}".`, "error");
+      return;
+    }
+
+    const fileControl = form.elements.namedItem("images");
+    const files = [...fileControl.files].slice(0, 3);
+    const targetIndex = Number(form.elements.namedItem("imageTask").value);
+    if (files.length && !timeline[targetIndex].completed) {
+      VSS.toast("Mark the selected image task as completed before uploading proof.", "error");
+      return;
+    }
+    if (files.length && !timeline[targetIndex].mechanic) {
+      VSS.toast("Enter the mechanic name for the task receiving the image.", "error");
       return;
     }
     if (files.length) {
-      const targetIndex = Number(form.imageTask.value);
-      const urls = await Promise.all(files.map(VSS.fileToDataURL));
-      timeline[targetIndex].images = [...(timeline[targetIndex].images || []), ...urls];
+      const submitButton = form.querySelector('[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<span class="loader"></span> Processing images...';
+      try {
+        const records = await Promise.all(files.map(VSS.imageFileToRecord));
+        timeline[targetIndex].images = [
+          ...(timeline[targetIndex].images || []),
+          ...records,
+        ];
+      } catch (error) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Save service update";
+        VSS.toast(error.message || "The selected image could not be saved.", "error");
+        return;
+      }
     }
 
     const newUpdates = [];
@@ -256,34 +316,43 @@ function openServiceModal(booking) {
       if (task.completed && !current.timeline[index].completed) {
         newUpdates.push({
           id: VSS.uid("UPD"),
-          message: `${task.title}.`,
+        message: `${task.title}${task.mechanic ? ` by ${task.mechanic}` : ""}.`,
           type: "success",
           createdAt: new Date().toISOString(),
           read: false,
         });
       }
     });
-    if (form.generalNote.value.trim()) {
+    const generalNote = form.elements.namedItem("generalNote").value.trim();
+    if (generalNote) {
       newUpdates.push({
         id: VSS.uid("UPD"),
-        message: form.generalNote.value.trim(),
+        message: generalNote,
         type: "info",
         createdAt: new Date().toISOString(),
         read: false,
       });
     }
 
-    VSS.updateBooking(booking.id, {
-      ...current,
-      expectedDate: form.expectedDate.value,
-      timeline,
-      status: timeline.every((task) => task.completed)
-        ? "Completed"
-        : timeline.some((task) => task.completed)
-        ? "In Progress"
-        : "Pending",
-      updates: [...newUpdates, ...(current.updates || [])],
-    });
+    try {
+      VSS.updateBooking(booking.id, {
+        ...current,
+        expectedDate: form.elements.namedItem("expectedDate").value,
+        timeline,
+        status: timeline.every((task) => task.completed)
+          ? "Completed"
+          : timeline.some((task) => task.completed)
+          ? "In Progress"
+          : "Pending",
+        updates: [...newUpdates, ...(current.updates || [])],
+      });
+    } catch (error) {
+      VSS.toast(
+        "Browser storage is full. Remove older images or choose smaller files.",
+        "error"
+      );
+      return;
+    }
     closeGeneratedModal();
     renderAdminDashboard();
     VSS.toast("Service progress updated.");
@@ -479,35 +548,12 @@ function openPickupModal(booking) {
   });
 }
 
-async function markReady(booking) {
+function markReady(booking) {
   closeGeneratedModal();
-  if (
-    !(await VSS.confirmAction(
-      "This will complete every timeline task and notify the customer.",
-      "Mark vehicle ready?"
-    ))
-  )
-    return;
-  const current = VSS.getBooking(booking.id);
-  current.timeline = current.timeline.map((task) => ({
-    ...task,
-    completed: true,
-    completedAt: task.completedAt || new Date().toISOString(),
-  }));
-  current.status = "Completed";
-  current.updates = [
-    {
-      id: VSS.uid("UPD"),
-      message: "Your vehicle is ready for delivery.",
-      type: "success",
-      createdAt: new Date().toISOString(),
-      read: false,
-    },
-    ...(current.updates || []),
-  ];
-  VSS.updateBooking(booking.id, current);
-  renderAdminDashboard();
-  VSS.toast("Vehicle marked ready for delivery.");
+  openServiceModal(booking);
+  VSS.toast(
+    'Complete the "Ready for Delivery" task and enter the responsible mechanic name.'
+  );
 }
 
 async function deleteBooking(booking) {
