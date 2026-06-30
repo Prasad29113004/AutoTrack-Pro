@@ -145,6 +145,19 @@ Because all links are relative and there is no server-side code, the project wor
 6. Create an invoice and pickup schedule from the administrator action menu.
 7. Show the customer billing page and browser print preview.
 
+## Demo Access
+
+Administrator access is available upon request for project evaluation and demonstration purposes.
+
+## Contact
+
+For administrator access, project discussion, or collaboration, please contact:
+
+- **Name:** Prasad Nimje
+- **Email:** prasdnimje200@gmail.com
+- **LinkedIn:** https://www.linkedin.com/in/prasad-nimje/
+
+
 ## Academic extension ideas
 
 - Connect Firebase, Supabase, PHP/MySQL, or another backend
